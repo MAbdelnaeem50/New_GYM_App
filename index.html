@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="جيم تراكر">
+<title>جيم تراكر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="app-title">جيم <span>تراكر</span></div>
+      <div class="week-badge" id="weekLabel">أسبوع 1</div>
+    </div>
+  </div>
+
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span id="progressText">0 تمرين مكتمل</span><span id="progressPct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="content" id="content"></div>
+
+  <div class="bottom-actions">
+    <button class="save-btn" id="saveBtn" onclick="saveDay()">حفظ تمرين اليوم 💾</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
