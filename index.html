@@ -8,7 +8,130 @@
 <meta name="apple-mobile-web-app-title" content="جيم تراكر">
 <title>جيم تراكر</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --surface3: #242430;
+    --accent: #c8f060;
+    --accent2: #60f0c8;
+    --text: #f0f0f5;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --border: #2a2a38;
+    --red: #ff6060;
+    --amber: #ffb84d;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; overflow: hidden; }
+
+  #app { height: 100vh; display: flex; flex-direction: column; max-width: 430px; margin: 0 auto; position: relative; overflow: hidden; }
+
+  /* TOP BAR */
+  .topbar { padding: 52px 20px 16px; background: var(--bg); position: relative; z-index: 10; flex-shrink: 0; }
+  .topbar-row { display: flex; align-items: center; justify-content: space-between; }
+  .app-title { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .app-title span { color: var(--accent); }
+  .week-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: var(--text2); font-weight: 600; }
+
+  /* DAY TABS */
+  .day-tabs { padding: 0 20px 12px; display: flex; gap: 8px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab { flex-shrink: 0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid var(--border); background: var(--surface); color: var(--text2); cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .day-tab.active { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
+  .day-tab.rest { border-color: transparent; background: var(--surface); }
+  .day-tab.rest.active { background: var(--surface3); color: var(--text2); border-color: var(--border); }
+  .day-tab .day-name { font-size: 13px; }
+  .day-tab .day-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.4; }
+  .day-tab.done .day-dot { opacity: 1; background: var(--accent2); }
+
+  /* SCROLL CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 0 20px 120px; scrollbar-width: none; }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* DAY HEADER */
+  .day-header { margin-bottom: 20px; padding: 16px 18px; background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); }
+  .day-title { font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+  .day-subtitle { font-size: 13px; color: var(--text2); }
+  .rest-card { text-align: center; padding: 40px 20px; }
+  .rest-icon { font-size: 48px; margin-bottom: 12px; }
+  .rest-title { font-size: 20px; font-weight: 900; color: var(--text2); margin-bottom: 8px; }
+  .rest-desc { font-size: 14px; color: var(--text3); line-height: 1.6; }
+
+  /* EXERCISE CARD */
+  .ex-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; transition: border-color 0.2s; }
+  .ex-card.expanded { border-color: var(--accent); }
+  .ex-header { padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .ex-num { width: 32px; height: 32px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--text2); flex-shrink: 0; }
+  .ex-card.expanded .ex-num { background: var(--accent); color: #0a0a0f; }
+  .ex-info { flex: 1; }
+  .ex-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .ex-meta { font-size: 12px; color: var(--text2); }
+  .ex-arrow { color: var(--text3); font-size: 18px; transition: transform 0.2s; flex-shrink: 0; }
+  .ex-card.expanded .ex-arrow { transform: rotate(180deg); color: var(--accent); }
+
+  /* SETS TABLE */
+  .sets-body { padding: 0 18px 18px; display: none; }
+  .ex-card.expanded .sets-body { display: block; }
+  .sets-header-row { display: grid; grid-template-columns: 36px 1fr 1fr 40px; gap: 8px; padding: 0 0 8px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+  .sets-header-row span { font-size: 11px; color: var(--text3); font-weight: 700; text-align: center; }
+  .sets-header-row span:first-child { text-align: right; }
+  .set-row { display: grid; grid-template-columns: 36px 1fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: center; }
+  .set-num { font-size: 13px; color: var(--text3); font-weight: 700; }
+  .set-input { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 8px; font-size: 15px; font-weight: 700; color: var(--text); text-align: center; font-family: 'Cairo', sans-serif; width: 100%; transition: border-color 0.2s; outline: none; -webkit-appearance: none; }
+  .set-input:focus { border-color: var(--accent); background: var(--surface3); }
+  .set-input::placeholder { color: var(--text3); font-size: 13px; }
+  .set-done-btn { width: 36px; height: 42px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: all 0.2s; }
+  .set-done-btn.done { background: #1a2e0a; border-color: var(--accent); }
+
+  .weight-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .weight-label { font-size: 13px; color: var(--text2); font-weight: 600; white-space: nowrap; }
+  .weight-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 15px; font-weight: 700; color: var(--accent); text-align: center; font-family: 'Cairo', sans-serif; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  .weight-input:focus { border-color: var(--accent); }
+  .weight-unit { font-size: 13px; color: var(--text3); font-weight: 600; }
+  .prev-weight { font-size: 12px; color: var(--text3); margin-top: 6px; text-align: center; }
+  .prev-weight span { color: var(--accent2); font-weight: 700; }
+
+  /* CARDIO CARD */
+  .cardio-card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 18px; margin-bottom: 12px; }
+  .cardio-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .cardio-title::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+  .cardio-row { display: flex; gap: 10px; }
+  .cardio-field { flex: 1; }
+  .cardio-field label { font-size: 11px; color: var(--text3); font-weight: 700; display: block; margin-bottom: 6px; }
+  .cardio-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; font-weight: 700; color: var(--text); font-family: 'Cairo', sans-serif; outline: none; text-align: center; -webkit-appearance: none; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap { padding: 0 20px 14px; flex-shrink: 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .progress-bar { height: 4px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.4s; }
+
+  /* BOTTOM ACTIONS */
+  .bottom-actions { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; padding: 12px 20px 28px; background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 20; }
+  .save-btn { width: 100%; padding: 16px; background: var(--accent); color: #0a0a0f; border: none; border-radius: var(--radius); font-size: 16px; font-weight: 900; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px; }
+  .save-btn:active { transform: scale(0.97); opacity: 0.9; }
+  .save-btn.saved { background: var(--accent2); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface3); border: 1px solid var(--border); color: var(--text); padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 100; white-space: nowrap; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* SUMMARY */
+  .summary-section { margin-top: 20px; }
+  .summary-title { font-size: 13px; color: var(--text3); font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .summary-val { font-size: 22px; font-weight: 900; color: var(--accent); }
+  .summary-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+</style>
 </head>
 <body>
 <div id="app">
@@ -34,6 +157,314 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="app.js"></script>
+<script>
+const DAYS = [
+  {
+    id: 'fri', name: 'الجمعة', label: 'الجمعة', rest: true,
+    title: 'يوم راحة', subtitle: 'استرح وخلي جسمك يتعافى',
+    exercises: []
+  },
+  {
+    id: 'sat', name: 'السبت', label: 'السبت', rest: false,
+    title: 'صدر + تراسبس', subtitle: 'قوة عضلية — Push Day',
+    exercises: [
+      { name: 'Bench Press', sets: 4, reps: 12 },
+      { name: 'Incline Dumbbell Press', sets: 3, reps: 12 },
+      { name: 'Butterfly / Pec Deck', sets: 3, reps: 15 },
+      { name: 'Tricep Pushdown بحبل', sets: 3, reps: 15 },
+      { name: 'Overhead Tricep Extension', sets: 3, reps: 12 },
+    ],
+    cardio: { name: 'تريدميل — مشي سريع', duration: 20 }
+  },
+  {
+    id: 'sun', name: 'الاحد', label: 'الاحد', rest: false,
+    title: 'ظهر + بايسبس', subtitle: 'قوة عضلية — Pull Day',
+    exercises: [
+      { name: 'Lat Pulldown', sets: 4, reps: 12 },
+      { name: 'Seated Cable Row', sets: 4, reps: 12 },
+      { name: 'Dumbbell Row أحادي', sets: 3, reps: 12 },
+      { name: 'T-Bar Row', sets: 3, reps: 12 },
+      { name: 'Barbell Curl', sets: 3, reps: 12 },
+      { name: 'Hammer Curl', sets: 3, reps: 12 },
+    ],
+    cardio: { name: 'دراجة ثابتة', duration: 20 }
+  },
+  {
+    id: 'mon', name: 'الاثنين', label: 'الاثنين', rest: true,
+    title: 'يوم راحة', subtitle: 'النوم والتعافي جزء من التمرين',
+    exercises: []
+  },
+  {
+    id: 'tue', name: 'الثلاثاء', label: 'الثلاثاء', rest: false,
+    title: 'أكتاف + كور', subtitle: 'قوة عضلية — Shoulders',
+    exercises: [
+      { name: 'Overhead Press', sets: 4, reps: 12 },
+      { name: 'Lateral Raise', sets: 4, reps: 15 },
+      { name: 'Front Raise', sets: 3, reps: 12 },
+      { name: 'Face Pull بالكابل', sets: 3, reps: 15 },
+      { name: 'Plank', sets: 3, reps: null, duration: 45 },
+    ],
+    cardio: { name: 'إيليبتيكال أو تريدميل', duration: 20 }
+  },
+  {
+    id: 'wed', name: 'الاربعاء', label: 'الاربعاء', rest: false,
+    title: 'أرجل كاملة', subtitle: 'قوة عضلية — Legs Day',
+    exercises: [
+      { name: 'Goblet Squat', sets: 4, reps: 12 },
+      { name: 'Leg Press', sets: 4, reps: 15 },
+      { name: 'Romanian Deadlift', sets: 3, reps: 12 },
+      { name: 'Leg Curl ماكينة', sets: 3, reps: 15 },
+      { name: 'Seated Leg Extension', sets: 3, reps: 15 },
+      { name: 'Calf Raises', sets: 3, reps: 20 },
+    ],
+    cardio: { name: 'تريدميل خفيف', duration: 15 }
+  },
+  {
+    id: 'thu', name: 'الخميس', label: 'الخميس', rest: false,
+    title: 'كارديو + بطن', subtitle: 'حرق دهون — Cardio Day',
+    exercises: [
+      { name: 'Crunches', sets: 3, reps: 20 },
+      { name: 'Leg Raises', sets: 3, reps: 15 },
+      { name: 'Plank', sets: 3, reps: null, duration: 45 },
+      { name: 'Russian Twist', sets: 3, reps: 20 },
+    ],
+    cardio: { name: 'تريدميل — مشي أو هرولة', duration: 35 }
+  },
+];
+
+let currentDay = 0;
+let data = JSON.parse(localStorage.getItem('gymData') || '{}');
+
+function getKey(dayId, exIdx, field) {
+  return `${dayId}_${exIdx}_${field}`;
+}
+
+function saveToStorage() {
+  localStorage.setItem('gymData', JSON.stringify(data));
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = DAYS.map((d, i) => {
+    const isDone = data[`${d.id}_done`];
+    return `<div class="day-tab${i === currentDay ? ' active' : ''}${d.rest ? ' rest' : ''}${isDone ? ' done' : ''}" onclick="switchDay(${i})">
+      <span class="day-name">${d.label}</span>
+      <div class="day-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function switchDay(i) {
+  currentDay = i;
+  renderTabs();
+  renderContent();
+  updateProgress();
+}
+
+function renderContent() {
+  const day = DAYS[currentDay];
+  const content = document.getElementById('content');
+
+  if (day.rest) {
+    content.innerHTML = `
+      <div class="day-header rest-card">
+        <div class="rest-icon">😴</div>
+        <div class="rest-title">${day.title}</div>
+        <div class="rest-desc">${day.subtitle}<br><br>اشرب مياه كويس واهتم بالنوم 7-8 ساعات</div>
+      </div>`;
+    document.getElementById('saveBtn').textContent = 'تم ✓';
+    return;
+  }
+
+  document.getElementById('saveBtn').textContent = 'حفظ تمرين اليوم 💾';
+
+  let html = `<div class="day-header">
+    <div class="day-title">${day.title}</div>
+    <div class="day-subtitle">${day.subtitle}</div>
+  </div>`;
+
+  day.exercises.forEach((ex, i) => {
+    const setsMeta = ex.reps ? `${ex.sets} جولات × ${ex.reps} تكرار` : `${ex.sets} جولات × ${ex.duration} ثانية`;
+    const savedWeight = data[getKey(day.id, i, 'weight')] || '';
+    const prevWeight = data[getKey(day.id, i, 'prevWeight')] || '';
+
+    let setsHtml = `<div class="sets-header-row">
+      <span>جولة</span><span>تكرار</span><span>وزن kg</span><span>✓</span>
+    </div>`;
+
+    for (let s = 0; s < ex.sets; s++) {
+      const savedReps = data[getKey(day.id, i, `reps_${s}`)] || '';
+      const savedSetWeight = data[getKey(day.id, i, `setweight_${s}`)] || '';
+      const isDone = data[getKey(day.id, i, `setdone_${s}`)];
+      setsHtml += `<div class="set-row">
+        <div class="set-num">${s + 1}</div>
+        <input type="number" class="set-input" placeholder="${ex.reps || ex.duration}" value="${savedReps}"
+          oninput="saveSet('${day.id}', ${i}, ${s}, 'reps', this.value)">
+        <input type="number" class="set-input" placeholder="0" value="${savedSetWeight}"
+          oninput="saveSet('${day.id}', ${i}, ${s}, 'setweight', this.value)">
+        <div class="set-done-btn${isDone ? ' done' : ''}" onclick="toggleSetDone('${day.id}', ${i}, ${s}, this)">${isDone ? '✓' : '○'}</div>
+      </div>`;
+    }
+
+    html += `<div class="ex-card" id="ex_${i}">
+      <div class="ex-header" onclick="toggleEx(${i})">
+        <div class="ex-num">${i + 1}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-meta">${setsMeta}</div>
+        </div>
+        <div class="ex-arrow">⌄</div>
+      </div>
+      <div class="sets-body">
+        ${setsHtml}
+        <div class="weight-row">
+          <span class="weight-label">أقصى وزن شيلته</span>
+          <input type="number" class="weight-input" placeholder="0" value="${savedWeight}"
+            oninput="saveWeight('${day.id}', ${i}, this.value)" id="w_${day.id}_${i}">
+          <span class="weight-unit">kg</span>
+        </div>
+        ${prevWeight ? `<div class="prev-weight">آخر مرة: <span>${prevWeight} kg</span></div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  if (day.cardio) {
+    const savedDur = data[`${day.id}_cardio_dur`] || day.cardio.duration;
+    const savedNote = data[`${day.id}_cardio_note`] || '';
+    html += `<div class="cardio-card">
+      <div class="cardio-title">${day.cardio.name}</div>
+      <div class="cardio-row">
+        <div class="cardio-field">
+          <label>مدة (دقيقة)</label>
+          <input type="number" class="cardio-input" value="${savedDur}"
+            oninput="data['${day.id}_cardio_dur']=this.value; saveToStorage()">
+        </div>
+        <div class="cardio-field">
+          <label>ملاحظة</label>
+          <input type="text" class="cardio-input" placeholder="مثال: 6 كم/س" value="${savedNote}"
+            oninput="data['${day.id}_cardio_note']=this.value; saveToStorage()">
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Summary
+  let totalSets = 0, doneSets = 0;
+  day.exercises.forEach((ex, i) => {
+    totalSets += ex.sets;
+    for (let s = 0; s < ex.sets; s++) {
+      if (data[getKey(day.id, i, `setdone_${s}`)]) doneSets++;
+    }
+  });
+
+  html += `<div class="summary-section">
+    <div class="summary-title">ملخص اليوم</div>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="summary-val" id="sum-total">${totalSets}</div><div class="summary-lbl">إجمالي الجولات</div></div>
+      <div class="summary-card"><div class="summary-val" id="sum-done" style="color:var(--accent2)">${doneSets}</div><div class="summary-lbl">جولات مكتملة</div></div>
+    </div>
+  </div>`;
+
+  content.innerHTML = html;
+}
+
+function toggleEx(i) {
+  const card = document.getElementById(`ex_${i}`);
+  card.classList.toggle('expanded');
+}
+
+function saveSet(dayId, exIdx, setIdx, field, value) {
+  data[getKey(dayId, exIdx, `${field}_${setIdx}`)] = value;
+  saveToStorage();
+}
+
+function toggleSetDone(dayId, exIdx, setIdx, btn) {
+  const key = getKey(dayId, exIdx, `setdone_${setIdx}`);
+  data[key] = !data[key];
+  btn.classList.toggle('done');
+  btn.textContent = data[key] ? '✓' : '○';
+  saveToStorage();
+  updateProgress();
+  updateSummary();
+}
+
+function updateSummary() {
+  const day = DAYS[currentDay];
+  if (day.rest) return;
+  let totalSets = 0, doneSets = 0;
+  day.exercises.forEach((ex, i) => {
+    totalSets += ex.sets;
+    for (let s = 0; s < ex.sets; s++) {
+      if (data[getKey(day.id, i, `setdone_${s}`)]) doneSets++;
+    }
+  });
+  const sumDone = document.getElementById('sum-done');
+  if (sumDone) sumDone.textContent = doneSets;
+}
+
+function saveWeight(dayId, exIdx, value) {
+  const key = getKey(dayId, exIdx, 'weight');
+  data[key] = value;
+  saveToStorage();
+}
+
+function updateProgress() {
+  const day = DAYS[currentDay];
+  if (day.rest) {
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressText').textContent = 'يوم راحة';
+    document.getElementById('progressPct').textContent = '';
+    return;
+  }
+  let total = 0, done = 0;
+  day.exercises.forEach((ex, i) => {
+    total += ex.sets;
+    for (let s = 0; s < ex.sets; s++) {
+      if (data[getKey(day.id, i, `setdone_${s}`)]) done++;
+    }
+  });
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${done} جولة مكتملة من ${total}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function saveDay() {
+  const day = DAYS[currentDay];
+  if (day.rest) return;
+  data[`${day.id}_done`] = true;
+  // save current weights as prev for next time reference
+  day.exercises.forEach((ex, i) => {
+    const w = data[getKey(day.id, i, 'weight')];
+    if (w) data[getKey(day.id, i, 'prevWeight')] = w;
+  });
+  saveToStorage();
+  renderTabs();
+  const btn = document.getElementById('saveBtn');
+  btn.textContent = 'تم الحفظ ✓';
+  btn.classList.add('saved');
+  setTimeout(() => {
+    btn.textContent = 'حفظ تمرين اليوم 💾';
+    btn.classList.remove('saved');
+  }, 2000);
+  showToast('تم حفظ تمرين اليوم 💪');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// detect current day of week and start there
+const jsDay = new Date().getDay(); // 0=Sun,1=Mon,...,6=Sat
+const dayMap = { 0:1, 1:2, 2:4, 3:5, 4:6, 5:3, 6:0 }; // map JS day to our DAYS index (starts Sat)
+currentDay = dayMap[jsDay] !== undefined ? dayMap[jsDay] : 0;
+
+renderTabs();
+renderContent();
+updateProgress();
+</script>
 </body>
 </html>
